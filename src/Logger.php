@@ -13,10 +13,10 @@ use Volador\Helpers\ArrayHelp;
 * 注1:日志切割配合shell脚本处理, 不在PHP中浪费CPU处理这种事情。
 *
 * 配置日志格式化模版:
-*  LogConfig::template("{DATETIME} [{REQUEST_ID}][{LEVEL}] {FILE}:{LINE} {CONTENT}");
+*  LogConfig::template("{DATETIME} [{TRACE_ID}][{LEVEL}] {FILE}:{LINE} {CONTENT}");
 *
 * 給自定义模版变量复值:
-*  Logger::templateSet("REQUEST_ID", $_REQUEST['request_id']);
+*  Logger::templateSet("TRACE_ID", $_REQUEST['request_id']);
 *
 * 写入日志:
 *  Logger::debug('hello');
@@ -24,9 +24,9 @@ use Volador\Helpers\ArrayHelp;
 *
 * 守护进程模式
 * LogConfig::logfile("/Users/chao/logs/debug.log");
-* LogConfig::template("{DATETIME} [{REQUEST_ID}][{LEVEL}] {FILE}:{LINE} {CONTENT}");
+* LogConfig::template("{DATETIME} [{TRACE_ID}][{LEVEL}] {FILE}:{LINE} {CONTENT}");
 * function daemon() {
-*     LogConfig::setTemplateVal('REQUEST_ID', $REQUEST_ID);
+*     LogConfig::setTemplateVal('TRACE_ID', $TRACE_ID);
 *     Logger::debug('hello, {name}', ['name' => 'Lin{name}']);
 *
 *     // todo:
