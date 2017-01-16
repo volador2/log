@@ -28,26 +28,6 @@ class LogConfig
     static protected $_filename;
 
     /**
-     * 缓存标记
-     * @var [bool]   默认True
-     */
-    static protected $_cache = true;
-
-    /**
-     * 设置缓存标记
-     * @param  [type] $flag [description]
-     * @return [type]       [description]
-     */
-    static public function cache($flag = null)
-    {
-        if (!is_null($flag)) {
-            self::$_cache = boolval($flag);
-        }
-
-        return self::$_cache;
-    }
-
-    /**
      * 设置/获取日志解析格式串
      * @param string $tpl [description]
      * @return mixed [<description>]

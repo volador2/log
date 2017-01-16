@@ -41,6 +41,35 @@ class DemoController
 }
 ```
 
+####常驻进程
+
+```php
+use Volador\Log\Logger;
+use Volador\Log\LogConfig;
+
+class Daemon
+{
+    
+    function __construct()
+    {
+        LogConfig::logfile('/path/debug.log');
+        LogConfig::template('{DATETIME} [{REQUEST_ID}][{LEVEL}] {FILE}:{LINE} {CONTENT}');
+    }
+
+    public function run()
+    {
+        for (;;) { 
+            LogConfig::setTemplateVal('REQUEST_ID', $REQUEST_ID);
+            Logger::debug('hello, {name}', ['name' => 'Lin{name}']);
+
+            Logger::fflush();
+        }
+    }
+}
+
+
+```
+
 ## API 函数列表
 
 当出现致命的运行时错误。这类错误一般是不可恢复的情况。后果是导致脚本终止不再继续运行。
@@ -67,3 +96,8 @@ Logger::notice($message, array $context = array())
 Logger::debug($message, array $context = array())
 ```
 
+立即写盘并释放当前日志文件
+
+```php
+Logger::fflush()
+```

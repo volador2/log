@@ -11,9 +11,6 @@ use Volador\Helpers\ArrayHelp;
 /**
 * 日志处理类
 * 注1:日志切割配合shell脚本处理, 不在PHP中浪费CPU处理这种事情。
-* 注2:在常驻服务模式, 通过shell切割日志的时候, 如果是mv的方式, 
-*     并不能让后续的log写入到新的文件中, 需要关闭LogConfig::cache(false)
-*     (cache 关闭后, 日记文件会周期性的打开=>关闭, 打开=>关闭日志文件来避免这个问题)
 *
 * 配置日志格式化模版:
 *  LogConfig::template("{DATETIME} [{REQUEST_ID}][{LEVEL}] {FILE}:{LINE} {CONTENT}");
@@ -24,6 +21,17 @@ use Volador\Helpers\ArrayHelp;
 * 写入日志:
 *  Logger::debug('hello');
 *  Logger::debug('hello, {name} !', array('name' => 'Word'));
+*
+* 守护进程模式
+* LogConfig::logfile("/Users/chao/logs/debug.log");
+* LogConfig::template("{DATETIME} [{REQUEST_ID}][{LEVEL}] {FILE}:{LINE} {CONTENT}");
+* function daemon() {
+*     LogConfig::setTemplateVal('REQUEST_ID', $REQUEST_ID);
+*     Logger::debug('hello, {name}', ['name' => 'Lin{name}']);
+*
+*     // todo:
+*     Logger::fflush();
+* }
 * 
 * @since [version> [<description>]
 * @author huangchao <[<email address>]>
@@ -132,13 +140,7 @@ class Logger
     {
         $str = self::interpolate($template, $context);
 
-        // Log缓存标记(LogConfig 中定义)
-        $cache = LogConfig::cache();
-        if (!self::$_fd || $cache === FALSE) {
-            self::$_fd = new CFile(LogConfig::logfile(), "ab+");
-        }
-
-        $f = self::$_fd;
+        $f = self::fileInstance();
         $f->write($str . PHP_EOL);
 
         // 立即写盘
@@ -147,6 +149,31 @@ class Logger
                 $f->fflush();
             }
         }
+    }
+
+    /**
+     * [file 实例]
+     * @return [type] [description]
+     */
+    static public function fileInstance()
+    {
+        if (!self::$_fd) {
+            self::$_fd = new CFile(LogConfig::logfile(), "ab+");
+        }
+
+        return self::$_fd;
+    }
+
+    /**
+     * [写盘并释放fd]
+     * @return [type] [description]
+     */
+    static public function fflush()
+    {
+        $f = self::fileInstance();
+        $f->fflush();
+
+        self::$_fd = null;
     }
 
     /**
